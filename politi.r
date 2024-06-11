@@ -4,17 +4,17 @@ library(RCurl)### r�cup�rer des pages URL
 library(XML) ### parser : parcourir un texte Html pour en extraire des �l�ments
 library(stringr)
 pages = c()
-for (i in 1:2) {
+for (i in 1:819) {
   # Ajoute chaque valeur à la liste
   pages <- c(pages,paste0("https://www.politifact.com/factchecks/list/?page=",paste0(i, "&")))
 }
 infos <- c()
 liens =c()
-data<-data.frame("Citation","Rating", "Personne", "Date","Author", "Href", "Tags")
+data<-data.frame("Citation","Rating", "Personne", "Date","Platform","Author", "Href", "Tags")
 for (page in pages){
   page<-getURL(page, ssl.verifypeer=FALSE)
   page<-htmlParse(page)
-  datapage<-data.frame("Citation","Rating", "Personne", "Date", "Author", "Href", "Tags")
+  datapage<-data.frame("Citation","Rating", "Personne", "Date", "Platform", "Author", "Href", "Tags")
   for(i in 1:30){
     xpath_citation<-paste0("/html/body/div[2]/main/section[3]/article/section/div/article/ul/li[",paste0(i,"]/article/div[2]/div/div[1]/div/a"))
     citation<-xpathSApply(page, xpath_citation, xmlValue)
@@ -28,6 +28,8 @@ for (page in pages){
     xpath_date<-paste0("/html/body/div[2]/main/section[3]/article/section/div/article/ul/li[",paste0(i,"]/article/div[1]/div[2]/div"))
     date<-xpathSApply(page, xpath_date, xmlValue)
     date_pattern <- "\\b[A-Za-z]+ \\d{1,2}, \\d{4}\\b"
+    platform_pattern <- "(\\w+):"
+    platform <- str_match(date, platform_pattern)[,2]
     date <- str_extract(date, date_pattern)
     
     xpath_author<-paste0("/html/body/div[2]/main/section[3]/article/section/div/article/ul/li[",paste0(i,"]/article/div[2]/div/footer"))
@@ -44,13 +46,12 @@ for (page in pages){
     tags <- paste(tags, collapse = ", ")
     
     
-    datapage = rbind(datapage, list(citation,rating, personne,date,author,href,tags))
+    datapage = rbind(datapage, list(citation,rating, personne,date, platform, author,href,tags))
   }
   data = rbind(data,datapage)
-  #Nettoyage des variables
-  data$date<-str_remove_all(data$date, "stated on ")
-  data$date<-str_remove_all(data$date, "in a ")
-  data$date<-str_remove_all(data$date, ":")
+  write.csv(data, file="politifact.csv")
 }
+
+
   
 
