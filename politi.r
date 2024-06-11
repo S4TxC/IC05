@@ -49,7 +49,7 @@ for (page in pages){
     datapage = rbind(datapage, list(citation,rating, personne,date, platform, author,href,tags))
   }
   data = rbind(data,datapage)
-  write.csv(data, file="politifact.csv")
+  write.csv(data, file="politifact.csv",row.names = TRUE)
 }
 
 
