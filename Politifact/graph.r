@@ -20,3 +20,12 @@ ggplot(count_faux_states, aes(x = tag, y = count)) +
   geom_bar(stat = "identity") +
   labs(title = "Nombre d'articles faux par tag", x = "Tag", y = "Nombre d'articles faux") +
   theme_minimal()
+
+db_states <- db[db$Tag %in% us_states, ]
+
+ggplot(db_states, aes(x = Verdict, fill = Tag)) +
+  geom_bar() +
+  labs(title = "Nombre d'articles par verdict et par État", x = "Verdict", y = "Nombre d'articles", fill = "État") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
