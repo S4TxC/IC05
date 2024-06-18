@@ -14,13 +14,14 @@ library(wordcloud)
 library(wordcloud2)
 library(RColorBrewer)
 library(stopwords)
+library(igraph)
 
 #______________________________________________________________________________
 # Préparer le dataframe
 
 setwd("~/Cours/IC05/Projet/ic05/Politifact")
 
-db<-read.csv("politifactNonNettoyée.csv",sep=",")
+db<-read.csv("BasePolitifactNonNettoyée.csv",sep=",")
 
 # Virer la 1ère colonne d'ID qui gêne avant le traitement sur les lignes ayant les valeurs des titres de colonnes
 transformed_db <- db %>%
@@ -137,20 +138,45 @@ transformed_db$Auteur <- str_replace_all(transformed_db$Auteur, "â€¢ July 27
 
 #______________________________________________________________________________
 # Écrire le résultat dans un CSV
-write.csv(transformed_db, "baseTags.csv")
 
-# Créer les data frames pour les noeuds
-a <- unique(transformed_db$Tag)
-b <- unique(transformed_db$Title)
-c <- rep("Tag", length(a))
-d <- rep("Fiction", length(b))
-tag <- as.data.frame(cbind(a, c))
-colnames(tag) <- c("Id", "Type")
-fiction <- as.data.frame(cbind(b, d))
-colnames(fiction) <- c("Id", "Type")
+write.csv(transformed_db, "BaseNettoyéePolitifact.csv", row.names = FALSE, col.names = TRUE)
 
-# Combiner les deux data frames
-result <- rbind(fiction, tag)
+#______________________________________________________________________________
 
-# Écrire le résultat dans un CSV
-write.csv(result, "noeuds.csv")
+tags <- unique(transformed_db$Tag)
+titles <- unique(transformed_db$Titre)
+
+# Créer un data frame pour les liens entre les tags et les titres
+links <- data.frame(from = as.character(transformed_db$Tag),
+                    to = as.character(transformed_db$Titre))
+
+# Écrire les données pour les nœuds dans des fichiers CSV séparés
+write.csv(data.frame(name = tags, type = "Tag"), "nodes_tags.csv", row.names = FALSE)
+write.csv(data.frame(name = titles, type = "Titre"), "nodes_titles.csv", row.names = FALSE)
+
+# Écrire les données pour les liens dans un fichier CSV
+write.csv(links, "links.csv", row.names = FALSE)
+
+
+
+# Créer un data frame pour les liens entre les fake news
+links2 <- data.frame(from = as.character(transformed_db$Titre),
+                    to = as.character(transformed_db$Titre_cible))
+
+# Créer un data frame pour les nœuds avec les attributs
+nodes2 <- data.frame(name = unique(c(transformed_db$Titre, transformed_db$Titre_cible)),
+                    titre = transformed_db$Titre[match(unique(c(transformed_db$Titre, transformed_db$Titre_cible)), transformed_db$Titre)],
+                    date = transformed_db$Date[match(unique(c(transformed_db$Titre, transformed_db$Titre_cible)), transformed_db$Titre)],
+                    verdict = transformed_db$Verdict[match(unique(c(transformed_db$Titre, transformed_db$Titre_cible)), transformed_db$Titre)],
+                    tags = transformed_db$Tag[match(unique(c(transformed_db$Titre, transformed_db$Titre_cible)), transformed_db$Titre)])
+
+# Écrire les données pour les nœuds dans un fichier CSV
+write.csv(nodes2, "nodes.csv", row.names = FALSE)
+
+# Écrire les données pour les liens dans un fichier CSV
+write.csv(links2, "links.csv", row.names = FALSE)
+
+
+
+
+
