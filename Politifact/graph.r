@@ -14,13 +14,21 @@ us_states <- c("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colora
 db_faux <- db[!(db$Verdict %in% c("True", "Mostly accurate")), ]
 count_faux <- as.data.frame(table(db_faux$Tag))
 colnames(count_faux) <- c("tag", "count")
-#count_faux_filtered <- subset(count_faux, count> 50)
+count_faux_filtered <- subset(count_faux, count> 100)
+count_faux_filtered <- count_faux_filtered[!(count_faux_filtered$tag %in% us_states), ]
 count_faux_states <- subset(count_faux, tag %in% us_states)
 
 ggplot(count_faux_states, aes(x = tag, y = count)) +
   geom_bar(stat = "identity") +
-  labs(title = "Nombre d'articles faux par tag", x = "Tag", y = "Nombre d'articles faux") +
-  theme_minimal()
+  labs(title = "Nombre d'articles faux par Etat", x = "Tag", y = "Nombre d'articles faux") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(count_faux_filtered, aes(x = tag, y = count)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Nombre d'articles faux par Tag", x = "Tag", y = "Nombre d'articles faux") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 db_states <- db[db$Tag %in% us_states, ]
 
@@ -40,10 +48,16 @@ palette <- c(
   "Wisconsin" = "#bcbd22", "Wyoming" = "#17becf"
 )
 
+db_states$Verdict <- factor(db_states$Verdict, levels = c(
+  "True", "Mostly accurate", "Half accurate", "Barely accurate", 
+  "False", "Flagrant falsehood", "Full change of position", 
+  "Partial change of position", "Consistent"
+))
+
 ggplot(db_states, aes(x = Verdict, fill = Tag)) +
   geom_bar() +
   scale_fill_manual(values = palette) +
-  labs(title = "Nombre d'articles par verdict et par État", x = "Verdict", y = "Nombre d'articles", fill = "État") +
+  labs(title = "Nombre d'articles par véracité et selon les états", x = "Verdict", y = "Nombre d'articles", fill = "État") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
