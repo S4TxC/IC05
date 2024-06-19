@@ -1,3 +1,10 @@
+Cloner le repo
+Puis cd network
+Lancer python3 -m http.server 8000
+Enfin aller sur http://localhost:8000
+Le graphe devrait s'afficher
+
+
 Template provided by InteractiveVis project
 http://blogs.oii.ox.ac.uk/vis/
 https://github.com/oxfordinternetinstitute/InteractiveVis/
