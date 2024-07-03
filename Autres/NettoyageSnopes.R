@@ -1,0 +1,30 @@
+library(ggplot2)
+library(stringr)
+library(dplyr)
+library(ggrepel)
+
+
+setwd("/home/ismael/Cours/GI02/IC05/Projet/")
+
+snp<-read.csv("data.csv")
+snp<-as.data.frame(snp)
+
+snp$Date<-str_trim(snp$Date, side="both") 
+snp$contents<-str_trim(snp$contents, side="both")
+
+snp$Rating[str_detect(snp$Rating, "[tT]rue|[Cc]orrect")] <- "True"
+snp$Rating[str_detect(snp$Rating, "[fF]ake|[Ss]cam|[Ff]alse|[uU]nfounded|[Ss]atire")] <- "Fake"
+snp$Rating[str_detect(snp$Rating, "[Mm]ixture|[Uu]nproven|[Mm]isattributed|[Rr]esearch [iI]n [pP]rogress|[Mm]iscaptioned")] <- "NA"
+
+snp$titleKey <- "Autre"
+snp$titleKey[str_detect(snp$title, "[kK]ing Charles|Ancestor|Historical|History|Surname|Coat of Arms|Medieval")] <- "Royalty_History"
+snp$titleKey[str_detect(snp$title, "Lily Gladstone|Emma Stone|Cher|Robert Downey Jr.|Benjamin Netanyahu|Marjorie Taylor Greene|Joe Biden|Trump|Garth Brooks|Mike Pence|Sophia Loren|Jimmy Kimmel|Stephen Colbert|Ronald Reagan|Denzel Washington|Sylvester Stallone|Mark Twain|Emmanuel Macron|Freddy Krueger|Hayao Miyazaki|Zelenskyy")] <- "Public_Figures_Celebrities"
+snp$titleKey[str_detect(snp$title, "App|Technology|AI|Facebook|Meta|iPhone|Windows Error|Las Vegas Sphere")] <- "Technology_Apps"
+snp$titleKey[str_detect(snp$title, "Scam|Crime|Controversy|Controversial|Scandal|Denied|Hoax|Fake|Lawsuit|Gun Confiscation|Burglar|Antisemitic|Scandal")] <- "Crime_Controversies"
+snp$titleKey[str_detect(snp$title, "Tunnel|Rafah|British Pub|Location|Place|House|Epcot|Underground City|Home Depot|Israel-Hamas|Turkey|Mars|Ukraine|Russia")] <- "Places_Locations"
+snp$titleKey[str_detect(snp$title, "Video|Viral|Media|Entertainment|Show|Movie|Film|Photo|Picture|Saturday Night Live|Oscar|Academy|New York Times")] <- "Media_Entertainment"
+snp$titleKey[str_detect(snp$title, "Health|Science|Medical|Doctor|Disease|Study|Cognitive Test|Drug Addiction|Alzheimer’s Disease|Gender Reassignment Surgery")] <- "Health_Science"
+snp$titleKey[str_detect(snp$title, "Burger King|Trader Joe|Dumplings|Cool Ranch Doritos|Chicken Soup Dumplings")] <- "Food_Products"
+snp$titleKey[str_detect(snp$title, "State of the Union|VA Ban|Labor Market|Gun Confiscation|Political|CPAC|Congress|Parliament|White House|Biden|Trump|Putin|Netanyahu|Zelenskyy")] <- "Politics_Government"
+snp$titleKey[str_detect(snp$title, "Barack Obama|Elon Musk|Cristiano Ronaldo|Taylor Swift|Albert Einstein|Oprah Winfrey|Nelson Mandela|Malala Yousafzai|Leonardo da Vinci|Jeff Bezos|Bill Gates|Angelina Jolie|Vladimir Poutine|Beyoncé|Mahatma Gandhi|Stephen Hawking|Serena Williams|Steve Jobs|Martin Luther King Jr.|Queen Elizabeth II|Mark Zuckerberg|Michael Jordan|Kim Kardashian|Donald Trump|Malcom X|Emma Watson|Leonardo DiCaprio|Dalai Lama|J.K. Rowling|Jeff Weiner|Tom Cruise|Michelle Obama|Shakira|Pope Francis|Ellen DeGeneres|Lionel Messi|Richard Branson|Princess Diana|Ariana Grande|Brad Pitt|Mark Twain|Frida Kahlo|Mother Teresa|Kobe Bryant|Stephen King|Emma Stone|Warren Buffett|David Beckham|Justin Bieber|Muhammad Ali|Bruce Lee|Lady Gaga|Marilyn Monroe|David Bowie|Pablo Picasso|Usain Bolt|Vincent van Gogh|George Washington|Hillary Clinton|Pablo Neruda|John Lennon|Margaret Thatcher|George Clooney|Keanu Reeves|Adele|Michael Jackson|George Orwell|Anne Frank|Rihanna|Michael Phelps|Albert Schweitzer|Queen Victoria|Julius Caesar|Alexander the Great|Florence Nightingale|Vincent Price|Nikola Tesla|Marie Curie|Amelia Earhart|Neil Armstrong|Rosa Parks|Winston Churchill|Theodore Roosevelt|Isaac Newton|Galileo Galilei|Charles Darwin|Marie Antoinette|Ludwig van Beethoven|Wolfgang Amadeus Mozart|Johann Sebastian Bach|William Shakespeare|Jane Austen|Emily Dickinson|Virginia Woolf|Ernest Hemingway|F. Scott Fitzgerald|Maya Angelou|Toni Morrison|Harper Lee|J.R.R. Tolkien|C.S. Lewis|Gabriel García Márquez|Fyodor Dostoevsky|Leo Tolstoy|Franz Kafka|Albert Camus|Jean-Paul Sartre|Friedrich Nietzsche|Socrates|Plato|Aristotle|Confucius|Laozi|Siddhartha Gautama|Greta Thunberg|Al Gore|Jane Goodall|David Attenborough|Rachel Carson|Leonardo DiCaprio|Simone Biles|Michael Phelps|Katie Ledecky|Ian Thorpe|Kristin Otto|Roger Federer|Rafael Nadal|Venus Williams|Maria Sharapova|Tiger Woods|Phil Mickelson|Rory McIlroy|Bryson DeChambeau|Justin Thomas|Jordan Spieth|Tom Brady|Patrick Mahomes|Aaron Rodgers|Lamar Jackson|Russell Wilson|Kevin Durant|Giannis Antetokounmpo|Stephen Curry|James Harden|Luka Doncic|Gabby Douglas|Aly Raisman|McKayla Maroney|Simone Manuel|Carl Lewis|Michael Johnson|Jackie Joyner-Kersee|Sebastian Coe|Eliud Kipchoge|Haile Gebrselassie|Mo Farah|David Rudisha|Emil Zatopek|Roger Bannister|Pelé|Diego Maradona|Zinedine Zidane|Johan Cruyff|Franz Beckenbauer|Alfredo Di Stéfano|George Best|Michel Platini|Ronaldinho|Neymar|Kylian Mbappé|Robert Lewandowski|Mohamed Salah|Sergio Ramos|Virgil van Dijk|Luka Modric|Kevin De Bruyne|Gianluigi Buffon|Iker Casillas|Manuel Neuer|David de Gea|Marc-André ter Stegen|Alisson Becker|Thibaut Courtois|Petr Cech|Edwin van der Sar|Lev Yashin|Dino Zoff|Gordon Banks|Peter Schmeichel|Oliver Kahn|Claudio Taffarel|Hugo Lloris|Keylor Navas|Fabio Cannavaro|Paolo Maldini|Franco Baresi|Cafu|Roberto Carlos|Dani Alves|Philipp Lahm|Gerard Piqué|Carles Puyol|Alessandro Nesta|Javier Zanetti|Marcel Desailly|Lilian Thuram|Gaetano Scirea|Giuseppe Bergomi|Claudio Gentile|Giacinto Facchetti|Karl-Heinz Schnellinger|Ruud Krol|Berti Vogts|Paul Breitner|George Weah|Didier Drogba|Samuel Eto'o|Jay-Jay Okocha|Nwankwo Kanu|Roger Milla|Abedi Pele|Yaya Touré|Michael Essien|Kalusha Bwalya|Emmanuel Adebayor|Sadio Mané|Riyad Mahrez|Pierre-Emerick Aubameyang|Hakim Ziyech|Kolo Touré|John Obi Mikel|Hossam Hassan|Mahmoud El Khatib|Ali Daei|Ali Karimi|Javad Nekounam|Mehdi Mahdavikia|Park Ji-sung|Cha Bum-kun|Hidetoshi Nakata|Shinji Kagawa|Son Heung-min|Tim Cahill|Harry Kewell|Mark Viduka|Archie Thompson|Robbie Keane|Roy Keane|Robbie Fowler|Michael Owen|Wayne Rooney|David Beckham|Steven Gerrard|Frank Lampard|Paul Scholes|Ryan Giggs|Eric Cantona|Patrick Vieira|Dennis Bergkamp|Thierry Henry|Tony Adams|David Seaman")] <- "Public_People"
+write.csv(snp, file = "tableau_fusionne.csv", row.names = TRUE)
